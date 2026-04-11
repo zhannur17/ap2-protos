@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package order.v1;
 
-option go_package = "github.com/ТВОЙ_ЮЗЕР/ap2-generated/order/v1;orderv1";
+option go_package = "github.com/zhannur17/ap2-generated/order/v1;orderv1";
 
 service OrderService {
   rpc SubscribeToOrderUpdates(OrderRequest) returns (stream OrderStatusUpdate);
