@@ -10,8 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
       - name: Install protoc
         run: |
+          sudo apt-get update
           sudo apt-get install -y protobuf-compiler
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
@@ -28,12 +34,12 @@ jobs:
                  order/v1/order.proto
 
       - name: Push to generated repo
-        uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GENERATED_REPO_TOKEN }}
-        with:
-          source-directory: out
-          destination-github-username: zhannur17
-          destination-repository-name: ap2-generated
-          user-email: actions@github.com
-          target-branch: main
+        run: |
+          git clone https://zhannur17:${{ secrets.GENERATED_REPO_TOKEN }}@github.com/zhannur17/ap2-generated.git /tmp/ap2-generated
+          cp -r out/* /tmp/ap2-generated/
+          cd /tmp/ap2-generated
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git diff --staged --quiet || git commit -m "chore: regenerate protobuf files"
+          git push
