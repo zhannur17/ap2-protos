@@ -1,0 +1,39 @@
+name: Generate Protobuf
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install protoc
+        run: |
+          sudo apt-get install -y protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      - name: Generate Go code
+        run: |
+          mkdir -p out/payment/v1 out/order/v1
+          protoc --go_out=out --go_opt=paths=source_relative \
+                 --go-grpc_out=out --go-grpc_opt=paths=source_relative \
+                 payment/v1/payment.proto
+          protoc --go_out=out --go_opt=paths=source_relative \
+                 --go-grpc_out=out --go-grpc_opt=paths=source_relative \
+                 order/v1/order.proto
+
+      - name: Push to generated repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GENERATED_REPO_TOKEN }}
+        with:
+          source-directory: out
+          destination-github-username: ТВОЙ_ЮЗЕР
+          destination-repository-name: ap2-generated
+          user-email: actions@github.com
+          target-branch: main
