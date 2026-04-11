@@ -33,7 +33,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.GENERATED_REPO_TOKEN }}
         with:
           source-directory: out
-          destination-github-username: ТВОЙ_ЮЗЕР
+          destination-github-username: zhannur17
           destination-repository-name: ap2-generated
           user-email: actions@github.com
           target-branch: main
